@@ -23,14 +23,16 @@ App.prototype = {
                 })
             }
             , onReceiveCandidate: (candidate) => {
+                if(this.offered){ return; }
 
+                this.webrtc.receiveCandidate(candidate)
             }
         })
 
         // webrtc
         this.webrtc = new Webrtc({
             onIceCandidate: (candidate) => {
-
+                this.wamp.publishCandidate(candidate)
             }
             ,onLocalStream: (stream)=>{
                 let localVideo = document.querySelector("#loacalVideo")
@@ -44,8 +46,6 @@ App.prototype = {
             }
             , onGacheringComplete: () => {
                 if(this.offered){ return; }
-
-                this.wamp.publishAnswer(this.webrtc.sdp())
             }
         })
 

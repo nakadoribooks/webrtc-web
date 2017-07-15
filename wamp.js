@@ -67,8 +67,8 @@ Wamp.prototype = {
     }
 
     , onReceiveCandidate: function(args){
-        // console.log("onReceiveCandidate")
-        // console.log(args[0])
+        let candidate = JSON.parse(args[0])
+        this.callbacks.onReceiveCandidate(candidate)
     }
 }
 

@@ -12,11 +12,7 @@ Webrtc.prototype = {
 
     // interface ------
 
-    sdp: function(){
-        return this.peerConnection.localDescription
-    }
-
-    , createOffer: function(callback){
+    createOffer: function(callback){
         this.peerConnection.createOffer((descriptin) => { 
             this.peerConnection.setLocalDescription(descriptin);
             callback(descriptin)
@@ -31,13 +27,19 @@ Webrtc.prototype = {
         })
     }
 
-    , receiveOffer: function(sdp){
+    , receiveOffer: function(sdp, createdAnswer){
 
         this.peerConnection.setRemoteDescription(sdp).then(()=>{
             this.peerConnection.createAnswer().then((answerSdp) => {
                 this.peerConnection.setLocalDescription(answerSdp)
+
+                createdAnswer(answerSdp)
             })
         })
+    }
+
+    , receiveCandidate: function(candidate){
+        this.peerConnection.addIceCandidate(candidate)
     }
 
     // implements -------
