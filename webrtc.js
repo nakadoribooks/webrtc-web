@@ -1,3 +1,6 @@
+/**
+ * @param {onIceCandidate, onLocalStream, onAddedStream} callbacks 
+ */
 let Webrtc = function(callbacks){
     this.callbacks = callbacks
     this.setupPeerConnection()

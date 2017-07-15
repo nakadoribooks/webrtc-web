@@ -1,3 +1,7 @@
+
+/**
+ * @param {onReceiveAnswer, onReceiveOffer, onReceiveCandidate} callbacks 
+ */
 let Wamp = function(callbacks){
     this.callbacks = callbacks
 }

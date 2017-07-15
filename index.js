@@ -44,9 +44,6 @@ App.prototype = {
                 remoteVideo.src = window.URL.createObjectURL(stream);
                 remoteVideo.play()
             }
-            , onGacheringComplete: () => {
-                if(this.offered){ return; }
-            }
         })
 
         // event
