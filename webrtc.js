@@ -67,7 +67,8 @@ Webrtc.prototype = {
         peerConnection.onicegatheringstatechange = () =>{
             switch(peerConnection.iceGatheringState){
                 case "complete":
-                    this.callbacks.onGacheringComplete()
+                    if(this.callbacks.onGacheringComplete)
+                        this.callbacks.onGacheringComplete()
                 break;
             }
         }

@@ -17,7 +17,7 @@ App.prototype = {
             }
             , onReceiveOffer: (sdp) => {
                 if (this.offered) { return; }
-
+                
                 this.webrtc.receiveOffer(sdp, (answerSdp)=>{
                     this.wamp.publishAnswer(answerSdp)
                 })
