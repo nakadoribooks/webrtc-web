@@ -4,16 +4,17 @@ class Wamp{
         return {
             HandshakeEndpint: "wss://nakadoribooks-webrtc.herokuapp.com"
             , Topic: {
-                Callme: "com.nakadoribook.webrtc.callme"
-                , Close: "com.nakadoribook.webrtc.close"
-                , Answer: "com.nakadoribook.webrtc.[id].answer"
-                , Offer: "com.nakadoribook.webrtc.[id].offer"
-                , Candidate: "com.nakadoribook.webrtc.[id].candidate"
+                Callme: "com.nakadoribook.webrtc.[roomId].callme"
+                , Close: "com.nakadoribook.webrtc.[roomId].close"
+                , Answer: "com.nakadoribook.webrtc.[roomId].[id].answer"
+                , Offer: "com.nakadoribook.webrtc.[roomId].[id].offer"
+                , Candidate: "com.nakadoribook.webrtc.[roomId].[id].candidate"
             }
         }
     }
 
-    static setup(userId, callbacks){
+    static setup(roomId, userId, callbacks){
+        Wamp.roomId = roomId
         Wamp.userId = userId
         Wamp.callbacks = callbacks
     }
@@ -30,24 +31,29 @@ class Wamp{
         Wamp.connection = connection
     }
 
+    static roomTopic(base){
+        return base.replace("[roomId]", Wamp.roomId)
+    }
+
     static endpointAnswer(targetId){
-        return Wamp.config.Topic.Answer.replace("[id]", targetId)
+        return Wamp.roomTopic(Wamp.config.Topic.Answer).replace("[id]", targetId)
     }
 
     static endpointOffer(targetId){
-        return Wamp.config.Topic.Offer.replace("[id]", targetId)
+
+        return Wamp.roomTopic(Wamp.config.Topic.Offer).replace("[id]", targetId)
     }
 
     static endpointCandidate(targetId){
-        return Wamp.config.Topic.Candidate.replace("[id]", targetId)
+        return Wamp.roomTopic(Wamp.config.Topic.Candidate).replace("[id]", targetId)
     }
 
     static endpointCallme(){
-        return Wamp.config.Topic.Callme
+        return Wamp.roomTopic(Wamp.config.Topic.Callme)
     }
 
     static endpointClose(){
-        return Wamp.config.Topic.Close
+        return Wamp.roomTopic(Wamp.config.Topic.Close)
     }
 
     static onOpen(session, details){

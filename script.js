@@ -79,12 +79,8 @@ let app = new Vue({
         }
 
         // 新規
-        let createdAt = Util.timestamp()
         this.roomRef = ref.push()
-        this.roomRef.set({
-            createdAt: createdAt
-            , createdAtReverse: -createdAt
-        })
+        this.roomRef.set({})
 
         location.href = location.origin + location.pathname + "#" + this.roomRef.key
     },
@@ -106,7 +102,7 @@ let app = new Vue({
         },
 
         setupWamp:function(){
-            Wamp.setup(this.userId, {
+            Wamp.setup(this.roomRef.key, this.userId, {
                 onOpen: () => {
                     console.log("onOpen")
                     let topic = Wamp.endpointCallme()
