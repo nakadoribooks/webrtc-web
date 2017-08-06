@@ -1,59 +1,78 @@
-let Webrtc = function(callbacks){
-    this.callbacks = callbacks
-    this.setupPeerConnection()
-    this.setupStream()
-}
+class Webrtc{
 
-Webrtc.config = {
-    IceUrl: "stun:stun.l.google.com:19302"
-}
+    constructor(callbacks){
+        this.callbacks = callbacks
+        this.setupPeerConnection()
+    }
 
-Webrtc.prototype = {
+    static get config(){
+        return {
+            IceUrl: "stun:stun.l.google.com:19302"
+        }
+    }
 
-    // interface ------
-
-    createOffer: function(callback){
-        this.peerConnection.createOffer((descriptin) => { 
-            this.peerConnection.setLocalDescription(descriptin);
-            callback(descriptin)
-        }, (error) => {
-            
+    static setup(){
+        return new Promise(function(resolve, reject) {
+            navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+            .then((stream) => { 
+                Webrtc.stream = stream
+                resolve(stream)
+            })
         });
     }
 
-    , receiveAnswer: function(sdp){
-        this.peerConnection.setRemoteDescription(sdp).then(()=>{
+    // interface ------
 
+    createOffer(callback){
+        let self = this
+        return new Promise(function(resolve, reject) {
+            self.peerConnection.createOffer().then((descriptin) => { 
+                self.peerConnection.setLocalDescription(descriptin);
+                resolve(descriptin)
+            }).catch((error)=>{
+                console.error(error)
+            });
         })
     }
 
-    , receiveOffer: function(sdp, createdAnswer){
-
+    receiveAnswer(sdp){
         this.peerConnection.setRemoteDescription(sdp).then(()=>{
-            this.peerConnection.createAnswer().then((answerSdp) => {
-                this.peerConnection.setLocalDescription(answerSdp)
 
-                createdAnswer(answerSdp)
+        }).catch((error)=>{
+            console.error(error)
+        })
+    }
+
+    receiveOffer(sdp){
+        let self = this
+        return new Promise(function(resolve, reject) {
+            self.peerConnection.setRemoteDescription(sdp).then(()=>{
+                self.peerConnection.createAnswer().then((answerSdp) => {
+                    self.peerConnection.setLocalDescription(answerSdp)
+                    resolve(answerSdp)
+                })
             })
         })
     }
 
-    , receiveCandidate: function(candidate){
+    receiveCandidate(candidate){
         this.peerConnection.addIceCandidate(candidate)
     }
 
     // implements -------
 
-    , setupPeerConnection: function(){
+    setupPeerConnection(){
         let peerConnection = new RTCPeerConnection({iceServers: [{url: Webrtc.config.IceUrl}]});
         this.peerConnection = peerConnection
+
+        this.peerConnection.addStream(Webrtc.stream)
         peerConnection.onicecandidate = (event) => {
 
             let candidate = event.candidate
             if (candidate == null) {
                 return;
             }
-            
+
             this.callbacks.onIceCandidate(candidate)
         };
         peerConnection.onaddstream = (event) => {
@@ -63,27 +82,15 @@ Webrtc.prototype = {
             }
             this.callbacks.onAddedStream(stream)
         };
-
-        peerConnection.onicegatheringstatechange = () =>{
-            switch(peerConnection.iceGatheringState){
-                case "complete":
-                    if(this.callbacks.onGacheringComplete)
-                        this.callbacks.onGacheringComplete()
-                break;
-            }
+        peerConnection.onremovestream = (event) => {
+            // TODO 呼ばれない？？
+            console.log("onremovestream")
+            console.log(event)
         }
     }
 
-    , setupStream: function(){
-
-        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-        .then((stream) => { 
-            this.stream = stream
-            this.peerConnection.addStream(this.stream)
-            this.callbacks.onLocalStream(stream)
-        })
-        .catch((err) => { 
-            console.error(err)
-        });
+    close(){
+        this.peerConnection.removeStream(Webrtc.stream)
+        this.peerConnection.close()
     }
 }

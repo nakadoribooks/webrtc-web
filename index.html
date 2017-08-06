@@ -6,23 +6,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <div class="columns">
-            <div class="column">
-                <remote-stream v-for="stream in remoteStreamList" 
-                    v-bind:src="stream.src"
-                />
-            </div>
-            <div class="column">
-                <my-stream 
-                    v-bind:src="myStream.src" 
-                />
-            </div>
-        </div>
-    </div>
-    <div>
-        <button id="offerButton">CreateOffer</button>
-    </div>
+    <div id="app"></div>
 
     <!-- javascriptライブラリの読み込み -->
     <script src="https://unpkg.com/vue"></script>
@@ -32,8 +16,10 @@
     <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase-database.js"></script>
     <script src="autobahn.min.js"></script>
+    <script src="util.js"></script>
     <script src="wamp.js"></script>
     <script src="webrtc.js"></script>
+    <script src="connection.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

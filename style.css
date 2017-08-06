@@ -1,9 +1,3 @@
-#loacalVideo{
-    width:100%;
-    height:100%;
-}
-
-.remoteBox video{
-    width:100%;
-    height:100%;
-}
+#videoList{ padding:10px; }
+#videoList .box{ margin:10px; }
+.myBox{ background:#cccccc; }
