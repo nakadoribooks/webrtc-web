@@ -117,6 +117,7 @@ let app = new Vue({
                     return element.targetId == targetId
                 })
                 if(connectionIndex != null){
+                    connectionList[connectionIndex].close()
                     this.connectionList.splice(connectionIndex, 1)
                 }
 

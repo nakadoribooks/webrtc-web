@@ -59,6 +59,7 @@ class Connection {
   }
 
   close(){
+    console.log("closeConnection")
     this.callbacks = null
     this.webrtc.close()
   }
