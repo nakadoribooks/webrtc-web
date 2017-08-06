@@ -1,10 +1,5 @@
 class Wamp{
 
-    static setup(userId, callbacks){
-        Wamp.userId = userId
-        Wamp.callbacks = callbacks
-    }
-
     static get config(){
         return {
             HandshakeEndpint: "wss://nakadoribooks-webrtc.herokuapp.com"
@@ -16,6 +11,23 @@ class Wamp{
                 , Candidate: "com.nakadoribook.webrtc.[id].candidate"
             }
         }
+    }
+
+    static setup(userId, callbacks){
+        Wamp.userId = userId
+        Wamp.callbacks = callbacks
+    }
+
+    static connect(){
+
+        let connection = new autobahn.Connection({
+            url: Wamp.config.HandshakeEndpint
+        });
+        connection.onopen = (session, details) => { Wamp.onOpen(session, details) }
+        connection.onclose = (reason, details) => { Wamp.onClose(session, details) }
+        connection.open()
+
+        Wamp.connection = connection
     }
 
     static endpointAnswer(targetId){
@@ -38,20 +50,6 @@ class Wamp{
         return Wamp.config.Topic.Close
     }
 
-    // interface
-    static connect(){
-
-        let connection = new autobahn.Connection({
-            url: Wamp.config.HandshakeEndpint
-        });
-        connection.onopen = (session, details) => { Wamp.onOpen(session, details) }
-        connection.onclose = (reason, details) => { Wamp.onClose(session, details) }
-        connection.open()
-
-        Wamp.connection = connection
-    }
-
-    // implements
     static onOpen(session, details){
 
         Wamp.session = session
@@ -100,5 +98,4 @@ class Wamp{
         console.log("onClose")
         console.log(reason)
     }
-
 }

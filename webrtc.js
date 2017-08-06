@@ -1,10 +1,5 @@
 class Webrtc{
 
-    constructor(callbacks){
-        this.callbacks = callbacks
-        this.setupPeerConnection()
-    }
-
     static get config(){
         return {
             IceUrl: "stun:stun.l.google.com:19302"
@@ -21,7 +16,10 @@ class Webrtc{
         });
     }
 
-    // interface ------
+    constructor(callbacks){
+        this.callbacks = callbacks
+        this.setupPeerConnection()
+    }
 
     createOffer(callback){
         let self = this
@@ -59,8 +57,6 @@ class Webrtc{
         this.peerConnection.addIceCandidate(candidate)
     }
 
-    // implements -------
-
     setupPeerConnection(){
         let peerConnection = new RTCPeerConnection({iceServers: [{url: Webrtc.config.IceUrl}]});
         this.peerConnection = peerConnection
@@ -92,5 +88,7 @@ class Webrtc{
     close(){
         this.peerConnection.removeStream(Webrtc.stream)
         this.peerConnection.close()
+        this.peerConnection = null;
+        this.callbacks = null;
     }
 }

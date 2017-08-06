@@ -19,6 +19,7 @@ class Connection {
         }
     })
 
+    // for tricke ice
     let candidateTopic = Wamp.endpointCandidate(this.myId)
     Wamp.session.subscribe(candidateTopic, (args, kwArgs)=>{ 
       this.onReceiveCandidate(args, kwArgs) 
@@ -33,8 +34,8 @@ class Connection {
     })
   }
 
-  publishAnswer(sdp){
-    this.webrtc.receiveOffer(sdp).then((answerSdp) => {
+  publishAnswer(remoteSdp){
+    this.webrtc.receiveOffer(remoteSdp).then((answerSdp) => {
       let str = JSON.stringify(answerSdp)
       let topic = Wamp.endpointAnswer(this.targetId)
       Wamp.session.publish(topic, [this.myId, str]);

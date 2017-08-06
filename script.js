@@ -1,6 +1,8 @@
+// ▼ component ---------
+
 let MyStream = {
     props: ['src', 'userId'],
-    template: `<div class="column is-one-quarter box videoBox myBox">
+    template: `<div class="column is-2 box videoBox myBox">
                     <p>You ({{userId}})</p>
                     <video class="video" v-bind:src="src" />
                 </div>`,
@@ -27,18 +29,19 @@ let RemoteStream = {
     }
 }
 
+// ▼ Main ---------
+
 let app = new Vue({
     el: '#app',
     template: `<div class="columns" id="videoList">
                 <my-stream 
                     v-bind:src="myStream.src" v-bind:userId="userId"
                 />
-                <div class="column columns">
+                <div class="column is-10 columns">
                     <remote-stream v-for="stream in remoteStreamList" 
                         v-bind:src="stream.src" v-bind:userId="stream.targetId"
                     />
                 </div>
-                
         </div>`, 
     components: {
         'remote-stream': RemoteStream
@@ -54,6 +57,7 @@ let app = new Vue({
     created: function(){
         this.connectionList = []
 
+        // ▼ firebase
         let config = {
             apiKey: "AIzaSyBddi0IhET7FoWts42BPWQFWsq38N17hPA",
             authDomain: "nakadoriwebrtc.firebaseapp.com",
@@ -65,16 +69,16 @@ let app = new Vue({
         firebase.initializeApp(config);
 
         let ref = firebase.database().ref('rooms')
-        let hash = location.hash
 
-        // ハッシュにroomId があったとき
+        let hash = location.hash
         if(hash != null && hash.length > 0){
+            // 既存
             let roomId = hash.slice( 1 ) ;
             this.roomRef = ref.child(roomId)
             return
         }
 
-        // 新しく作る
+        // 新規
         let createdAt = Util.timestamp()
         this.roomRef = ref.push()
         this.roomRef.set({
@@ -87,59 +91,66 @@ let app = new Vue({
 
     mounted: function(){
 
-        Wamp.setup(this.userId, {
-            onOpen: () => {
-                console.log("onOpen")
-                let topic = Wamp.endpointCallme()
-                Wamp.session.publish(topic, [this.userId]);
-            },
-            onReceiveOffer: (targetId, sdp) =>{
-                console.log("onReceiveOffer")
-                let connection = this.createConnection(targetId)
-                connection.publishAnswer(sdp)
-            },
-            onReceiveAnswer: (targetId, sdp) => {
-                console.log("onReceiveAnswer")
-                let connection = this.findConnection(targetId)
-                connection.receiveAnswer(sdp)
-            },
-            onReceiveCallme:(targetId)=>{
-                console.log("onReceivCallme")
-                let connection = this.createConnection(targetId)
-                connection.publishOffer()
-            },
-            onCloseConnection:(targetId) => {
-                console.log("onCloseConnection", targetId)
+        this.setupWamp()
+        this.setupStream()
 
-                // removeConnection
-                let connectionList = this.connectionList
-                let connectionIndex = connectionList.findIndex((element, index, array)=>{
-                    return element.targetId == targetId
-                })
-                if(connectionIndex != null){
-                    connectionList[connectionIndex].close()
-                    this.connectionList.splice(connectionIndex, 1)
-                }
-
-                // removeStream
-                let remoteStreamList = this.remoteStreamList
-                let streamIndex = remoteStreamList.findIndex((element, index, array)=>{
-                    return element.targetId == targetId
-                })
-                if(streamIndex != null){
-                    this.remoteStreamList.splice(streamIndex, 1)
-                }
-            }
-        })
         Wamp.connect()
-
-        // 自分のstream 
-        Webrtc.setup().then((stream) => {
-            this.myStream.src = window.URL.createObjectURL(stream);
-        })
     },
 
     methods: {
+
+        setupStream: function(){
+            Webrtc.setup().then((stream) => {
+                this.myStream.src = window.URL.createObjectURL(stream);
+            })
+        },
+
+        setupWamp:function(){
+            Wamp.setup(this.userId, {
+                onOpen: () => {
+                    console.log("onOpen")
+                    let topic = Wamp.endpointCallme()
+                    Wamp.session.publish(topic, [this.userId]);
+                },
+                onReceiveOffer: (targetId, sdp) =>{
+                    console.log("onReceiveOffer")
+                    let connection = this.createConnection(targetId)
+                    connection.publishAnswer(sdp)
+                },
+                onReceiveAnswer: (targetId, sdp) => {
+                    console.log("onReceiveAnswer")
+                    let connection = this.findConnection(targetId)
+                    connection.receiveAnswer(sdp)
+                },
+                onReceiveCallme:(targetId)=>{
+                    console.log("onReceivCallme")
+                    let connection = this.createConnection(targetId)
+                    connection.publishOffer()
+                },
+                onCloseConnection:(targetId) => {
+                    console.log("onCloseConnection", targetId)
+
+                    // removeConnection
+                    let connectionList = this.connectionList
+                    let connectionIndex = connectionList.findIndex((element, index, array)=>{
+                        return element.targetId == targetId
+                    })
+                    if(connectionIndex != null){
+                        connectionList[connectionIndex].close()
+                        this.connectionList.splice(connectionIndex, 1)
+                    }
+
+                    // removeStream
+                    let remoteStreamList = this.remoteStreamList
+                    let streamIndex = remoteStreamList.findIndex((element, index, array)=>{
+                        return element.targetId == targetId
+                    })
+                    if(streamIndex != null){
+                        this.remoteStreamList.splice(streamIndex, 1)
+                    }
+                }
+            })
+        },
 
         createConnection: function(targetId){
             let connection = new Connection(this.userId, targetId, {
