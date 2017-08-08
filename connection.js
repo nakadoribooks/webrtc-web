@@ -8,7 +8,9 @@ class Connection {
     // webrtc
     this.webrtc = new Webrtc({
         onIceCandidate: (candidate) => {
-          this.publishCandidate(candidate)
+          setTimeout(()=>{
+             this.publishCandidate(candidate)
+          }, 500)
         }
         , onAddedStream: (stream) => {
           stream.targetId = this.targetId
@@ -47,6 +49,8 @@ class Connection {
   publishCandidate(candidate){
       let str = JSON.stringify(candidate)
       let topic = Wamp.endpointCandidate(this.targetId)
+
+      console.log("publishCandidate", topic)
       Wamp.session.publish(topic, [str]);
   }
 
