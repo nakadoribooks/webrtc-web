@@ -20,12 +20,6 @@ class Connection {
           console.log("onRemoveStream")
         }
     })
-
-    // for tricke ice
-    let candidateTopic = Wamp.endpointCandidate(this.myId)
-    Wamp.session.subscribe(candidateTopic, (args, kwArgs)=>{ 
-      this.onReceiveCandidate(args, kwArgs) 
-    });
   }
 
   publishOffer(){
@@ -51,16 +45,15 @@ class Connection {
       let topic = Wamp.endpointCandidate(this.targetId)
 
       console.log("publishCandidate", topic)
-      Wamp.session.publish(topic, [str]);
+      Wamp.session.publish(topic, [this.myId, str]);
   }
 
   receiveAnswer(answerSdp){
     this.webrtc.receiveAnswer(answerSdp)
   }
 
-  onReceiveCandidate(args){
-      let candidate = JSON.parse(args[0])
-      this.webrtc.receiveCandidate(candidate)
+  receiveCandidate(candidate){
+    this.webrtc.receiveCandidate(candidate)
   }
 
   close(){

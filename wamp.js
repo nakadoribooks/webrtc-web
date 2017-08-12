@@ -6,9 +6,9 @@ class Wamp{
             , Topic: {
                 Callme: "com.nakadoribook.webrtc.[roomId].callme"
                 , Close: "com.nakadoribook.webrtc.[roomId].close"
-                , Answer: "com.nakadoribook.webrtc.[roomId].[id].answer"
-                , Offer: "com.nakadoribook.webrtc.[roomId].[id].offer"
-                , Candidate: "com.nakadoribook.webrtc.[roomId].[id].candidate"
+                , Answer: "com.nakadoribook.webrtc.[roomId].[userId].answer"
+                , Offer: "com.nakadoribook.webrtc.[roomId].[userId].offer"
+                , Candidate: "com.nakadoribook.webrtc.[roomId].[userId].candidate"
             }
         }
     }
@@ -35,17 +35,16 @@ class Wamp{
         return base.replace("[roomId]", Wamp.roomId)
     }
 
-    static endpointAnswer(targetId){
-        return Wamp.roomTopic(Wamp.config.Topic.Answer).replace("[id]", targetId)
+    static endpointAnswer(userId){
+        return Wamp.roomTopic(Wamp.config.Topic.Answer).replace("[userId]", userId)
     }
 
-    static endpointOffer(targetId){
-
-        return Wamp.roomTopic(Wamp.config.Topic.Offer).replace("[id]", targetId)
+    static endpointOffer(userId){
+        return Wamp.roomTopic(Wamp.config.Topic.Offer).replace("[userId]", userId)
     }
 
-    static endpointCandidate(targetId){
-        return Wamp.roomTopic(Wamp.config.Topic.Candidate).replace("[id]", targetId)
+    static endpointCandidate(userId){
+        return Wamp.roomTopic(Wamp.config.Topic.Candidate).replace("[userId]", userId)
     }
 
     static endpointCallme(){
@@ -63,6 +62,7 @@ class Wamp{
         // subscribe        
         session.subscribe(Wamp.endpointAnswer(Wamp.userId), (args, kwArgs)=>{ Wamp.onReceiveAnswer(args, kwArgs) });
         session.subscribe(Wamp.endpointOffer(Wamp.userId), (args, kwArgs)=>{ Wamp.onReceiveOffer(args, kwArgs) });
+        session.subscribe(Wamp.endpointCandidate(Wamp.userId), (args, kwArgs)=>{ Wamp.onReceiveCandidate(args, kwArgs) });
         session.subscribe(Wamp.endpointCallme(), (args, kwArgs)=>{ Wamp.onReceiveCallme(args, kwArgs) });
         session.subscribe(Wamp.endpointClose(), (args, kwArgs)=>{ Wamp.onCloseConnection(args, kwArgs) });
 
@@ -80,7 +80,6 @@ class Wamp{
     }
 
     static onReceiveAnswer(args, kwArgs){
-
         let targetId = args[0]
         let sdp = JSON.parse(args[1])
         Wamp.callbacks.onReceiveAnswer(targetId, sdp)
@@ -90,6 +89,12 @@ class Wamp{
         let targetId = args[0]
         let sdp = JSON.parse(args[1])
         Wamp.callbacks.onReceiveOffer(targetId, sdp)
+    }
+
+    static onReceiveCandidate(args, kwArgs){
+        let targetId = args[0];
+        let candidate = JSON.parse(args[1])
+        Wamp.callbacks.onReceiveCandidate(targetId, candidate)
     }
 
     static onCloseConnection(args, kwArgs){

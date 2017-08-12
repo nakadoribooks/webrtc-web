@@ -113,6 +113,10 @@ let app = new Vue({
                     let connection = this.createConnection(targetId)
                     connection.publishAnswer(sdp)
                 },
+                onReceiveCandidate: (targetId, candidate) => {
+                    let connection = this.findConnection(targetId);
+                    connection.receiveCandidate(candidate);
+                },
                 onReceiveAnswer: (targetId, sdp) => {
                     console.log("onReceiveAnswer")
                     let connection = this.findConnection(targetId)
