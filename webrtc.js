@@ -6,14 +6,12 @@ class Webrtc{
         }
     }
 
-    static setup(){
-        return new Promise(function(resolve, reject) {
-            navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-            .then((stream) => { 
-                Webrtc.stream = stream
-                resolve(stream)
-            })
-        });
+    static setup(callback){
+        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+        .then((stream) => { 
+            Webrtc.stream = stream
+            callback(stream)
+        })
     }
 
     constructor(callbacks){
@@ -21,16 +19,15 @@ class Webrtc{
         this.setupPeerConnection()
     }
 
-    createOffer(callback){
-        let self = this
-        return new Promise(function(resolve, reject) {
-            self.peerConnection.createOffer().then((descriptin) => { 
-                self.peerConnection.setLocalDescription(descriptin);
-                resolve(descriptin)
-            }).catch((error)=>{
-                console.error(error)
-            });
-        })
+    // interface -------------------
+
+    createOffer(){
+        this.peerConnection.createOffer().then((descriptin) => { 
+            this.peerConnection.setLocalDescription(descriptin);
+            this.callbacks.onCreateOffer(descriptin);
+        }).catch((error)=>{
+            console.error(error)
+        });
     }
 
     receiveAnswer(sdp){
@@ -42,13 +39,10 @@ class Webrtc{
     }
 
     receiveOffer(sdp){
-        let self = this
-        return new Promise(function(resolve, reject) {
-            self.peerConnection.setRemoteDescription(sdp).then(()=>{
-                self.peerConnection.createAnswer().then((answerSdp) => {
-                    self.peerConnection.setLocalDescription(answerSdp)
-                    resolve(answerSdp)
-                })
+        this.peerConnection.setRemoteDescription(sdp).then(()=>{
+            this.peerConnection.createAnswer().then((answerSdp) => {
+                this.peerConnection.setLocalDescription(answerSdp)
+                this.callbacks.onCreateAnswer(answerSdp)
             })
         })
     }
@@ -56,6 +50,15 @@ class Webrtc{
     receiveCandidate(candidate){
         this.peerConnection.addIceCandidate(candidate)
     }
+
+    close(){
+        this.peerConnection.removeStream(Webrtc.stream)
+        this.peerConnection.close()
+        this.peerConnection = null;
+        this.callbacks = null;
+    }
+
+    // implements -----------------------
 
     setupPeerConnection(){
         let peerConnection = new RTCPeerConnection({iceServers: [{url: Webrtc.config.IceUrl}]});
@@ -83,12 +86,5 @@ class Webrtc{
             console.log("onremovestream")
             console.log(event)
         }
-    }
-
-    close(){
-        this.peerConnection.removeStream(Webrtc.stream)
-        this.peerConnection.close()
-        this.peerConnection = null;
-        this.callbacks = null;
     }
 }

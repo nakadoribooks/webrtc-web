@@ -8,9 +8,18 @@ class Connection {
 
     // webrtc
     this.webrtc = new Webrtc({
-        onIceCandidate: (candidate) => {
+        onCreateOffer: (sdp) => {
+          let str = JSON.stringify(sdp)
+          this.wamp.publishOffer(this.targetId, str);
+        }
+        , onCreateAnswer: (sdp) => {
+          let str = JSON.stringify(sdp)
+          this.wamp.publishAnswer(this.targetId, str)
+        }
+        , onIceCandidate: (candidate) => {
           setTimeout(()=>{
-             this.publishCandidate(candidate)
+             let str = JSON.stringify(candidate)
+             this.wamp.publishCandidate(this.targetId, str);
           }, 500)
         }
         , onAddedStream: (stream) => {
@@ -23,30 +32,14 @@ class Connection {
     })
   }
 
+  // interface --------------------
+
   publishOffer(){
-    this.webrtc.createOffer().then((sdp)=>{
-      let str = JSON.stringify(sdp)
-      let topic = this.wamp.offerTopic(this.targetId)
-      this.wamp.session.publish(topic, [this.myId, str]);
-    })
+    this.webrtc.createOffer()
   }
 
-  publishAnswer(remoteSdp){
-    this.webrtc.receiveOffer(remoteSdp).then((answerSdp) => {
-      let str = JSON.stringify(answerSdp)
-      let topic = this.wamp.answerTopic(this.targetId)
-      this.wamp.session.publish(topic, [this.myId, str]);
-    }).catch((error)=>{
-      console.error(error)
-    })
-  }
-
-  publishCandidate(candidate){
-      let str = JSON.stringify(candidate)
-      let topic = this.wamp.candidateTopic(this.targetId)
-
-      console.log("publishCandidate", topic)
-      this.wamp.session.publish(topic, [this.myId, str]);
+  receiveOffer(sdp){
+    this.webrtc.receiveOffer(sdp)
   }
 
   receiveAnswer(answerSdp){

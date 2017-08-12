@@ -19,8 +19,10 @@ class Wamp{
         this.callbacks = callbacks
     }
 
-    connect(){
+    // interface ---------------------
 
+    connect(){
+        
         let connection = new autobahn.Connection({
             url: Wamp.config.HandshakeEndpint
         });
@@ -30,6 +32,33 @@ class Wamp{
 
         this.connection = connection
     }
+
+    publishCallme(){
+        let topic = this.callmeTopic()
+        this.session.publish(topic, [this.userId]);
+    }
+
+    publishAnswer(targetId, sdp){
+        let topic = this.answerTopic(targetId)
+        this.session.publish(topic, [this.userId, sdp]);
+    }
+
+    publishOffer(targetId, sdp){
+        let topic = this.offerTopic(targetId)
+        this.session.publish(topic, [this.userId, sdp]);
+    }
+
+    publishCandidate(targetId, candidate){
+        let topic = this.candidateTopic(targetId)
+        this.session.publish(topic, [this.userId, candidate]);
+    }
+
+    publishClose(){
+        let topic = this.closeTopic()
+        this.session.publish(topic, [this.userId]);
+    }
+
+    // endpoint -----------------
 
     roomTopic(base){
         return base.replace("[roomId]", this.roomId)
@@ -109,4 +138,5 @@ class Wamp{
         console.log("onClose")
         console.log(reason)
     }
+
 }

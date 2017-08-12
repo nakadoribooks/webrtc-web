@@ -57,32 +57,15 @@ let app = new Vue({
     created: function(){
         this.connectionList = []
 
-        // ▼ firebase
-        let config = {
-            apiKey: "AIzaSyBddi0IhET7FoWts42BPWQFWsq38N17hPA",
-            authDomain: "nakadoriwebrtc.firebaseapp.com",
-            databaseURL: "https://nakadoriwebrtc.firebaseio.com",
-            projectId: "nakadoriwebrtc",
-            storageBucket: "nakadoriwebrtc.appspot.com",
-            messagingSenderId: "668320959045"
-        };
-        firebase.initializeApp(config);
-
-        let ref = firebase.database().ref('rooms')
-
         let hash = location.hash
         if(hash != null && hash.length > 0){
             // 既存
-            let roomId = hash.slice( 1 ) ;
-            this.roomRef = ref.child(roomId)
+            this.roomId = hash.slice( 1 ) ;
             return
         }
 
-        // 新規
-        this.roomRef = ref.push()
-        this.roomRef.set({})
-
-        location.href = location.origin + location.pathname + "#" + this.roomRef.key
+        this.roomId = Math.random().toString(36).slice(-8);
+        location.href = location.origin + location.pathname + "#" + this.roomId
     },
 
     mounted: function(){
@@ -96,22 +79,21 @@ let app = new Vue({
     methods: {
 
         setupStream: function(){
-            Webrtc.setup().then((stream) => {
-                this.myStream.src = window.URL.createObjectURL(stream);
+            Webrtc.setup((localStream)=>{
+                this.myStream.src = window.URL.createObjectURL(localStream);
             })
         },
 
         setupWamp:function(){
-            let wamp = new Wamp(this.roomRef.key, this.userId, {
+            let wamp = new Wamp(this.roomId, this.userId, {
                 onOpen: () => {
                     console.log("onOpen")
-                    let topic = this.wamp.callmeTopic()
-                    this.wamp.session.publish(topic, [this.userId]);
+                    this.wamp.publishCallme()
                 },
                 onReceiveOffer: (targetId, sdp) =>{
                     console.log("onReceiveOffer")
                     let connection = this.createConnection(targetId)
-                    connection.publishAnswer(sdp)
+                    connection.receiveOffer(sdp)
                 },
                 onReceiveCandidate: (targetId, candidate) => {
                     let connection = this.findConnection(targetId);
@@ -178,8 +160,7 @@ let app = new Vue({
         },
 
         closeConnection: function(){
-            let topic = this.wamp.endpointClose()
-            this.wamp.session.publish(topic, [this.userId]);
+            this.wamp.publishClose()
 
             let connectionList = this.connectionList
             for(var i=0,max=connectionList.length;i<max;i++){
