@@ -84,6 +84,8 @@ class Wamp{
         return this.roomTopic(Wamp.config.Topic.Close)
     }
 
+    // -----------------
+
     onOpen(session, details){
 
         this.session = session
