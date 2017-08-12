@@ -1,3 +1,39 @@
-#videoList{ padding:10px; }
-#videoList .box{ margin:10px; }
-.myBox{ background:#cccccc; }
+#app{ padding:10px; }
+p{ margin:0px;}
+#remoteStreamContainer{ overflow: hidden; }
+
+.remoteBox{
+    width:200px;
+    height: 200px;
+    background: #cccccc;
+    float: left;
+    margin-right:20px;
+    position: relative;
+}
+
+.remoteBox video{
+    width:100%;
+    height:100%;
+}
+
+.remoteBox p{
+    position: absolute;
+    bottom:0px;
+    left: 0px;
+    height: 30px;
+    line-height:30px;
+    background:rgba(255,255,255,0.7);
+    width:100%;
+    text-align: center;
+}
+
+#localStreamContainer{
+    position: fixed;
+    bottom:10px;
+}
+
+#localVideo{
+    width:200px;
+    height:150px;
+    background:#cccccc;
+}

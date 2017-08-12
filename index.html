@@ -1,15 +1,23 @@
 <html>
 <head>
     <meta charset="utf8" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.0/css/bulma.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <p>Friends</p>
+        <div id="remoteStreamContainer">
+
+        </div>
+        <div id="localStreamContainer">
+            <p>You</p>
+            <video id="localVideo">
+
+            </video>
+        </div>
+    </div>
 
     <!-- ライブラリ -->
-    <script src="https://unpkg.com/vue"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script> 
     <script src="autobahn.min.js"></script>
     
@@ -17,6 +25,6 @@
     <script src="wamp.js"></script>
     <script src="webrtc.js"></script>
     <script src="connection.js"></script>
-    <script src="script.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>

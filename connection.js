@@ -23,8 +23,8 @@ class Connection {
           }, 500)
         }
         , onAddedStream: (stream) => {
-          stream.targetId = this.targetId
-          this.callbacks.onAddedStream(stream)
+          this._remoteStream = stream
+          this.callbacks.onAddedStream()
         }
         , onRemoveStream: (stream) =>{
           console.log("onRemoveStream")
@@ -33,6 +33,10 @@ class Connection {
   }
 
   // interface --------------------
+
+  get remoteStream(){
+    return this._remoteStream
+  }
 
   publishOffer(){
     this.webrtc.createOffer()
