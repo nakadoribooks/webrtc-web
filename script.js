@@ -105,7 +105,7 @@ let app = new Vue({
             let wamp = new Wamp(this.roomRef.key, this.userId, {
                 onOpen: () => {
                     console.log("onOpen")
-                    let topic = this.wamp.endpointCallme()
+                    let topic = this.wamp.callmeTopic()
                     this.wamp.session.publish(topic, [this.userId]);
                 },
                 onReceiveOffer: (targetId, sdp) =>{

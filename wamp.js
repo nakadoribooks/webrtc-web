@@ -35,23 +35,23 @@ class Wamp{
         return base.replace("[roomId]", this.roomId)
     }
 
-    endpointAnswer(userId){
+    answerTopic(userId){
         return this.roomTopic(Wamp.config.Topic.Answer).replace("[userId]", userId)
     }
 
-    endpointOffer(userId){
+    offerTopic(userId){
         return this.roomTopic(Wamp.config.Topic.Offer).replace("[userId]", userId)
     }
 
-    endpointCandidate(userId){
+    candidateTopic(userId){
         return this.roomTopic(Wamp.config.Topic.Candidate).replace("[userId]", userId)
     }
 
-    endpointCallme(){
+    callmeTopic(){
         return this.roomTopic(Wamp.config.Topic.Callme)
     }
 
-    endpointClose(){
+    closeTopic(){
         return this.roomTopic(Wamp.config.Topic.Close)
     }
 
@@ -60,11 +60,11 @@ class Wamp{
         this.session = session
 
         // subscribe        
-        session.subscribe(this.endpointAnswer(this.userId), (args, kwArgs)=>{ this.onReceiveAnswer(args, kwArgs) });
-        session.subscribe(this.endpointOffer(this.userId), (args, kwArgs)=>{ this.onReceiveOffer(args, kwArgs) });
-        session.subscribe(this.endpointCandidate(this.userId), (args, kwArgs)=>{ this.onReceiveCandidate(args, kwArgs) });
-        session.subscribe(this.endpointCallme(), (args, kwArgs)=>{ this.onReceiveCallme(args, kwArgs) });
-        session.subscribe(this.endpointClose(), (args, kwArgs)=>{ this.onCloseConnection(args, kwArgs) });
+        session.subscribe(this.answerTopic(this.userId), (args, kwArgs)=>{ this.onReceiveAnswer(args, kwArgs) });
+        session.subscribe(this.offerTopic(this.userId), (args, kwArgs)=>{ this.onReceiveOffer(args, kwArgs) });
+        session.subscribe(this.candidateTopic(this.userId), (args, kwArgs)=>{ this.onReceiveCandidate(args, kwArgs) });
+        session.subscribe(this.callmeTopic(), (args, kwArgs)=>{ this.onReceiveCallme(args, kwArgs) });
+        session.subscribe(this.closeTopic(), (args, kwArgs)=>{ this.onCloseConnection(args, kwArgs) });
 
         this.callbacks.onOpen()
     }

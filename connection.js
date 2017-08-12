@@ -26,7 +26,7 @@ class Connection {
   publishOffer(){
     this.webrtc.createOffer().then((sdp)=>{
       let str = JSON.stringify(sdp)
-      let topic = this.wamp.endpointOffer(this.targetId)
+      let topic = this.wamp.offerTopic(this.targetId)
       this.wamp.session.publish(topic, [this.myId, str]);
     })
   }
@@ -34,7 +34,7 @@ class Connection {
   publishAnswer(remoteSdp){
     this.webrtc.receiveOffer(remoteSdp).then((answerSdp) => {
       let str = JSON.stringify(answerSdp)
-      let topic = this.wamp.endpointAnswer(this.targetId)
+      let topic = this.wamp.answerTopic(this.targetId)
       this.wamp.session.publish(topic, [this.myId, str]);
     }).catch((error)=>{
       console.error(error)
@@ -43,7 +43,7 @@ class Connection {
 
   publishCandidate(candidate){
       let str = JSON.stringify(candidate)
-      let topic = this.wamp.endpointCandidate(this.targetId)
+      let topic = this.wamp.candidateTopic(this.targetId)
 
       console.log("publishCandidate", topic)
       this.wamp.session.publish(topic, [this.myId, str]);
