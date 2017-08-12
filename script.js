@@ -90,7 +90,7 @@ let app = new Vue({
         this.setupWamp()
         this.setupStream()
 
-        Wamp.connect()
+        this.wamp.connect();
     },
 
     methods: {
@@ -102,11 +102,11 @@ let app = new Vue({
         },
 
         setupWamp:function(){
-            Wamp.setup(this.roomRef.key, this.userId, {
+            let wamp = new Wamp(this.roomRef.key, this.userId, {
                 onOpen: () => {
                     console.log("onOpen")
-                    let topic = Wamp.endpointCallme()
-                    Wamp.session.publish(topic, [this.userId]);
+                    let topic = this.wamp.endpointCallme()
+                    this.wamp.session.publish(topic, [this.userId]);
                 },
                 onReceiveOffer: (targetId, sdp) =>{
                     console.log("onReceiveOffer")
@@ -150,10 +150,12 @@ let app = new Vue({
                     }
                 }
             })
+
+            this.wamp = wamp;
         },
 
         createConnection: function(targetId){
-            let connection = new Connection(this.userId, targetId, {
+            let connection = new Connection(this.userId, targetId, this.wamp, {
                 onAddedStream:(stream)=>{
                     stream.src = window.URL.createObjectURL(stream);
                     this.remoteStreamList.push(stream)
@@ -176,8 +178,8 @@ let app = new Vue({
         },
 
         closeConnection: function(){
-            let topic = Wamp.endpointClose()
-            Wamp.session.publish(topic, [this.userId]);
+            let topic = this.wamp.endpointClose()
+            this.wamp.session.publish(topic, [this.userId]);
 
             let connectionList = this.connectionList
             for(var i=0,max=connectionList.length;i<max;i++){

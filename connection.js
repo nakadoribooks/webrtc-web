@@ -1,8 +1,9 @@
 class Connection {
 
-  constructor(myId, targetId, callbacks) {
+  constructor(myId, targetId, wamp, callbacks) {
     this.myId = myId
     this.targetId = targetId
+    this.wamp = wamp
     this.callbacks = callbacks
 
     // webrtc
@@ -25,16 +26,16 @@ class Connection {
   publishOffer(){
     this.webrtc.createOffer().then((sdp)=>{
       let str = JSON.stringify(sdp)
-      let topic = Wamp.endpointOffer(this.targetId)
-      Wamp.session.publish(topic, [this.myId, str]);
+      let topic = this.wamp.endpointOffer(this.targetId)
+      this.wamp.session.publish(topic, [this.myId, str]);
     })
   }
 
   publishAnswer(remoteSdp){
     this.webrtc.receiveOffer(remoteSdp).then((answerSdp) => {
       let str = JSON.stringify(answerSdp)
-      let topic = Wamp.endpointAnswer(this.targetId)
-      Wamp.session.publish(topic, [this.myId, str]);
+      let topic = this.wamp.endpointAnswer(this.targetId)
+      this.wamp.session.publish(topic, [this.myId, str]);
     }).catch((error)=>{
       console.error(error)
     })
@@ -42,10 +43,10 @@ class Connection {
 
   publishCandidate(candidate){
       let str = JSON.stringify(candidate)
-      let topic = Wamp.endpointCandidate(this.targetId)
+      let topic = this.wamp.endpointCandidate(this.targetId)
 
       console.log("publishCandidate", topic)
-      Wamp.session.publish(topic, [this.myId, str]);
+      this.wamp.session.publish(topic, [this.myId, str]);
   }
 
   receiveAnswer(answerSdp){

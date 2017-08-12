@@ -13,99 +13,99 @@ class Wamp{
         }
     }
 
-    static setup(roomId, userId, callbacks){
-        Wamp.roomId = roomId
-        Wamp.userId = userId
-        Wamp.callbacks = callbacks
+    constructor(roomId, userId, callbacks){
+        this.roomId = roomId
+        this.userId = userId
+        this.callbacks = callbacks
     }
 
-    static connect(){
+    connect(){
 
         let connection = new autobahn.Connection({
             url: Wamp.config.HandshakeEndpint
         });
-        connection.onopen = (session, details) => { Wamp.onOpen(session, details) }
-        connection.onclose = (reason, details) => { Wamp.onClose(session, details) }
+        connection.onopen = (session, details) => { this.onOpen(session, details) }
+        connection.onclose = (reason, details) => { this.onClose(session, details) }
         connection.open()
 
-        Wamp.connection = connection
+        this.connection = connection
     }
 
-    static roomTopic(base){
-        return base.replace("[roomId]", Wamp.roomId)
+    roomTopic(base){
+        return base.replace("[roomId]", this.roomId)
     }
 
-    static endpointAnswer(userId){
-        return Wamp.roomTopic(Wamp.config.Topic.Answer).replace("[userId]", userId)
+    endpointAnswer(userId){
+        return this.roomTopic(Wamp.config.Topic.Answer).replace("[userId]", userId)
     }
 
-    static endpointOffer(userId){
-        return Wamp.roomTopic(Wamp.config.Topic.Offer).replace("[userId]", userId)
+    endpointOffer(userId){
+        return this.roomTopic(Wamp.config.Topic.Offer).replace("[userId]", userId)
     }
 
-    static endpointCandidate(userId){
-        return Wamp.roomTopic(Wamp.config.Topic.Candidate).replace("[userId]", userId)
+    endpointCandidate(userId){
+        return this.roomTopic(Wamp.config.Topic.Candidate).replace("[userId]", userId)
     }
 
-    static endpointCallme(){
-        return Wamp.roomTopic(Wamp.config.Topic.Callme)
+    endpointCallme(){
+        return this.roomTopic(Wamp.config.Topic.Callme)
     }
 
-    static endpointClose(){
-        return Wamp.roomTopic(Wamp.config.Topic.Close)
+    endpointClose(){
+        return this.roomTopic(Wamp.config.Topic.Close)
     }
 
-    static onOpen(session, details){
+    onOpen(session, details){
 
-        Wamp.session = session
+        this.session = session
 
         // subscribe        
-        session.subscribe(Wamp.endpointAnswer(Wamp.userId), (args, kwArgs)=>{ Wamp.onReceiveAnswer(args, kwArgs) });
-        session.subscribe(Wamp.endpointOffer(Wamp.userId), (args, kwArgs)=>{ Wamp.onReceiveOffer(args, kwArgs) });
-        session.subscribe(Wamp.endpointCandidate(Wamp.userId), (args, kwArgs)=>{ Wamp.onReceiveCandidate(args, kwArgs) });
-        session.subscribe(Wamp.endpointCallme(), (args, kwArgs)=>{ Wamp.onReceiveCallme(args, kwArgs) });
-        session.subscribe(Wamp.endpointClose(), (args, kwArgs)=>{ Wamp.onCloseConnection(args, kwArgs) });
+        session.subscribe(this.endpointAnswer(this.userId), (args, kwArgs)=>{ this.onReceiveAnswer(args, kwArgs) });
+        session.subscribe(this.endpointOffer(this.userId), (args, kwArgs)=>{ this.onReceiveOffer(args, kwArgs) });
+        session.subscribe(this.endpointCandidate(this.userId), (args, kwArgs)=>{ this.onReceiveCandidate(args, kwArgs) });
+        session.subscribe(this.endpointCallme(), (args, kwArgs)=>{ this.onReceiveCallme(args, kwArgs) });
+        session.subscribe(this.endpointClose(), (args, kwArgs)=>{ this.onCloseConnection(args, kwArgs) });
 
-        Wamp.callbacks.onOpen()
+        this.callbacks.onOpen()
     }
 
-    static onReceiveCallme(args, kwArgs){
+    onReceiveCallme(args, kwArgs){
         let targetId = args[0]
 
         if(targetId == this.userId){
             return
         }
 
-        Wamp.callbacks.onReceiveCallme(targetId)
+        this.callbacks.onReceiveCallme(targetId)
     }
 
-    static onReceiveAnswer(args, kwArgs){
+    onReceiveAnswer(args, kwArgs){
         let targetId = args[0]
         let sdp = JSON.parse(args[1])
-        Wamp.callbacks.onReceiveAnswer(targetId, sdp)
+        this.callbacks.onReceiveAnswer(targetId, sdp)
     }
 
-    static onReceiveOffer(args, kwArgs){
+    onReceiveOffer(args, kwArgs){
         let targetId = args[0]
         let sdp = JSON.parse(args[1])
-        Wamp.callbacks.onReceiveOffer(targetId, sdp)
+        this.callbacks.onReceiveOffer(targetId, sdp)
     }
 
-    static onReceiveCandidate(args, kwArgs){
+    onReceiveCandidate(args, kwArgs){
         let targetId = args[0];
         let candidate = JSON.parse(args[1])
-        Wamp.callbacks.onReceiveCandidate(targetId, candidate)
+        this.callbacks.onReceiveCandidate(targetId, candidate)
     }
 
-    static onCloseConnection(args, kwArgs){
+    onCloseConnection(args, kwArgs){
         let targetId = args[0]
         if (targetId == this.userId){
             return;
         }
-        Wamp.callbacks.onCloseConnection(targetId)
+        this.callbacks.onCloseConnection(targetId)
     }
 
-    static onClose(reason, details){
+    onClose(reason, details){
         console.log("onClose")
         console.log(reason)
     }
