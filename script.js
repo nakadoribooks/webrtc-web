@@ -90,12 +90,10 @@ class App{
     
         createConnection(targetId){
             let connection = new Connection(this.userId, targetId, this.wamp, {
-                onAddedStream:()=>{
-                    console.log("---- onAddedStream ------")
-                    console.log(connection.remoteStream)
+                onAddedStream:(remoteStream)=>{
     
                     let html = this.template(App.remoteStreamTemplate, {
-                        src: window.URL.createObjectURL(connection.remoteStream),
+                        src: window.URL.createObjectURL(remoteStream),
                         userId: connection.targetId
                     });
     

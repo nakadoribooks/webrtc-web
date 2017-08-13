@@ -2,7 +2,7 @@ class Connection {
 
   constructor(myId, targetId, wamp, callbacks) {
     this.myId = myId
-    this.targetId = targetId
+    this._targetId = targetId
     this.wamp = wamp
     this.callbacks = callbacks
 
@@ -23,8 +23,7 @@ class Connection {
           }, 500)
         }
         , onAddedStream: (stream) => {
-          this._remoteStream = stream
-          this.callbacks.onAddedStream()
+          this.callbacks.onAddedStream(stream)
         }
         , onRemoveStream: (stream) =>{
           console.log("onRemoveStream")
@@ -34,8 +33,8 @@ class Connection {
 
   // interface --------------------
 
-  get remoteStream(){
-    return this._remoteStream
+  get targetId(){
+    return this._targetId
   }
 
   publishOffer(){
